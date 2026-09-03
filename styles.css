@@ -1,0 +1,310 @@
+/* ==========================================================================
+   POSTURAFIT™ - High-Conversion Landing Page Stylesheet
+   Metodología NeuroFunnel (Iconic Studio) | Adaptado a Huánuco, Perú
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&display=swap');
+
+:root {
+  --primary: #0284c7;        /* Sky Blue Médico */
+  --primary-dark: #0369a1;   /* Azul Marino Clínico */
+  --primary-deep: #0f172a;   /* Azul Oscuro Profundo */
+  --accent: #ff6b00;         /* Naranja Conversión */
+  --accent-hover: #e05e00;   /* Naranja Oscuro */
+  --success: #10b981;        /* Verde Verificado / Confianza */
+  --success-dark: #059669;
+  --bg-light: #f8fafc;
+  --card-bg: #1e293b;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --border-light: #e2e8f0;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.12);
+  --shadow-cta: 0 10px 25px -3px rgba(255, 107, 0, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--text-main);
+  background-color: var(--bg-light);
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  overflow-x: hidden;
+  padding-bottom: 90px; /* Espacio para el Sticky Bottom Bar */
+  line-height: 1.5;
+}
+
+/* Tipografía fluida */
+h1, h2, h3, h4, .font-heading {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: -0.025em;
+  font-weight: 800;
+}
+
+/* Animaciones y Efectos de Conversión */
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.6);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 14px rgba(255, 107, 0, 0);
+  }
+}
+
+@keyframes floatSoft {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes badgeShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes slideUpToast {
+  0% { transform: translateY(60px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.animate-pulse-cta {
+  animation: pulseGlow 2.4s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.animate-float {
+  animation: floatSoft 4s ease-in-out infinite;
+}
+
+.btn-cta-primary {
+  background: linear-gradient(135deg, #ff7a18 0%, #ff5200 100%);
+  color: #ffffff !important;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-radius: 9999px;
+  box-shadow: var(--shadow-cta);
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.btn-cta-primary:hover {
+  background: linear-gradient(135deg, #ff8930 0%, #ff3b00 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px -2px rgba(255, 107, 0, 0.55);
+}
+
+.btn-cta-primary:active {
+  transform: translateY(1px);
+}
+
+/* Shimmer Badge */
+.badge-shimmer {
+  background: linear-gradient(90deg, #f1f5f9 0%, #ffffff 50%, #f1f5f9 100%);
+  background-size: 200% 100%;
+  animation: badgeShimmer 3s infinite linear;
+}
+
+/* Tarjetas de Dolor */
+.pain-card {
+  transition: all 0.3s ease;
+  border: 1px solid #fee2e2;
+  background-color: #fffaf9;
+}
+
+.pain-card:hover {
+  transform: translateY(-4px);
+  border-color: #fca5a5;
+  box-shadow: 0 12px 24px -6px rgba(239, 68, 68, 0.15);
+}
+
+/* ==========================================================================
+   SELECTOR DE COMBOS (SOLO BORDE NARANJA DESTACADO Y FONDO OSCURO SIEMPRE)
+   ========================================================================== */
+.combo-card {
+  transition: all 0.25s ease;
+  cursor: pointer;
+  border: 2px solid #334155;
+  background: #1e293b !important;
+  color: #ffffff !important;
+  position: relative;
+  border-radius: 1rem;
+}
+
+.combo-card:hover {
+  border-color: #475569;
+}
+
+.combo-card.active {
+  border-color: #ff6b00 !important;
+  box-shadow: 0 0 0 2px #ff6b00, 0 12px 28px -4px rgba(255, 107, 0, 0.35) !important;
+  background: #1e293b !important;
+}
+
+.combo-card .radio-circle {
+  border-color: #64748b;
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.combo-card.active .radio-circle {
+  border-color: #ff6b00 !important;
+  background-color: #ff6b00 !important;
+}
+
+.combo-card .radio-inner {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.combo-card.active .radio-inner {
+  opacity: 1 !important;
+}
+
+.combo-card .btn-combo-select {
+  background: #334155;
+  color: #cbd5e1;
+  transition: all 0.2s ease;
+}
+
+.combo-card.active .btn-combo-select {
+  background: #ff6b00 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(255, 107, 0, 0.4);
+}
+
+/* Selector de Tallas */
+.size-btn {
+  transition: all 0.2s ease;
+  border: 2px solid #cbd5e1;
+  background-color: #ffffff;
+  cursor: pointer;
+}
+
+.size-btn:hover {
+  border-color: #0284c7;
+  color: #0284c7;
+}
+
+.size-btn.active {
+  border-color: #0284c7;
+  background-color: #0284c7;
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+}
+
+/* Acordeón FAQ */
+.faq-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, padding 0.3s ease;
+}
+
+.faq-item.active .faq-content {
+  max-height: 500px;
+}
+
+.faq-item.active .faq-icon {
+  transform: rotate(180deg);
+}
+
+/* ==========================================================================
+   STICKY BOTTOM BAR (DISEÑO LIMPIO Y ORDENADO EN CELULAR Y PC)
+   ========================================================================== */
+.sticky-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 999;
+  background: rgba(15, 23, 42, 0.96);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.35);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* ==========================================================================
+   TOAST DE COMPRA RECIENTE (UBICADO ARRIBA DE LA BARRA SIN TAPAR NADA)
+   ========================================================================== */
+.purchase-toast {
+  position: fixed;
+  bottom: 85px;
+  left: 20px;
+  z-index: 996;
+  max-width: 320px;
+  animation: slideUpToast 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 640px) {
+  .purchase-toast {
+    bottom: 85px; /* Directamente encima de la barra en celular */
+    left: 12px;
+    right: auto;
+    max-width: 250px;
+  }
+}
+
+/* ==========================================================================
+   BOTÓN FLOTANTE DE WHATSAPP (POR ENCIMA DE LA BARRA STICKY)
+   ========================================================================== */
+.floating-whatsapp {
+  position: fixed;
+  bottom: 85px;
+  right: 20px;
+  z-index: 997;
+  background: #25d366;
+  color: white;
+  border-radius: 50%;
+  width: 54px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(37, 211, 102, 0.5);
+  transition: all 0.25s ease;
+  text-decoration: none;
+}
+
+.floating-whatsapp:hover {
+  transform: scale(1.1);
+  box-shadow: 0 10px 24px rgba(37, 211, 102, 0.65);
+}
+
+@media (max-width: 640px) {
+  .floating-whatsapp {
+    bottom: 85px; /* Directamente encima de la barra en celular */
+    right: 12px;
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* Imagen con zoom sutil */
+.img-zoom-container {
+  overflow: hidden;
+}
+
+.img-zoom-container img {
+  transition: transform 0.5s ease;
+}
+
+.img-zoom-container:hover img {
+  transform: scale(1.03);
+}
