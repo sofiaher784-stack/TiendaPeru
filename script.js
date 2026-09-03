@@ -269,19 +269,81 @@ function initFAQAccordion() {
 // ==========================================
 function initFormHandler() {
   const form = document.getElementById("order-form");
+  const inputNombre = document.getElementById("cliente-nombre");
+  const inputTelefono = document.getElementById("cliente-telefono");
+  const errorNombre = document.getElementById("nombre-error");
+  const errorTelefono = document.getElementById("telefono-error");
+
   if (!form) return;
+
+  // Restricción en vivo para el Nombre: Solo letras, tildes y espacios
+  if (inputNombre) {
+    inputNombre.addEventListener("input", () => {
+      const original = inputNombre.value;
+      const filtrado = original.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "");
+      if (original !== filtrado) {
+        inputNombre.value = filtrado;
+        if (errorNombre) errorNombre.classList.remove("hidden");
+      } else {
+        if (errorNombre) errorNombre.classList.add("hidden");
+      }
+    });
+  }
+
+  // Restricción en vivo para el Teléfono: 9 dígitos y empezar siempre con 9
+  if (inputTelefono) {
+    inputTelefono.addEventListener("input", () => {
+      let val = inputTelefono.value.replace(/\D/g, ""); // Solo números
+      
+      // Si el primer número no es 9, ignorarlo o corregirlo
+      if (val.length > 0 && val[0] !== "9") {
+        val = "9" + val.slice(0, 8);
+        if (errorTelefono) errorTelefono.classList.remove("hidden");
+      } else {
+        if (errorTelefono) errorTelefono.classList.add("hidden");
+      }
+
+      if (val.length > 9) {
+        val = val.slice(0, 9);
+      }
+
+      inputTelefono.value = val;
+    });
+  }
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const nombre = document.getElementById("cliente-nombre").value.trim();
-    const telefono = document.getElementById("cliente-telefono").value.trim();
+    const nombre = inputNombre ? inputNombre.value.trim() : "";
+    const telefono = inputTelefono ? inputTelefono.value.trim() : "";
     const direccion = document.getElementById("cliente-direccion").value.trim();
     const distrito = document.getElementById("cliente-distrito").value.trim();
     const referencia = document.getElementById("cliente-referencia").value.trim() || "Ninguna especificada";
 
-    if (!nombre || !telefono || !direccion || !distrito) {
-      alert("Por favor completa los campos obligatorios para enviar tu pedido contraentrega.");
+    // Validar Nombre
+    const regexNombre = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,}$/;
+    if (!regexNombre.test(nombre)) {
+      if (errorNombre) errorNombre.classList.remove("hidden");
+      if (inputNombre) inputNombre.focus();
+      alert("Por favor ingresa un nombre válido (mínimo 3 letras, sin números ni caracteres especiales).");
+      return;
+    } else {
+      if (errorNombre) errorNombre.classList.add("hidden");
+    }
+
+    // Validar Teléfono (Exactamente 9 dígitos y empieza en 9)
+    const regexTelefono = /^9\d{8}$/;
+    if (!regexTelefono.test(telefono)) {
+      if (errorTelefono) errorTelefono.classList.remove("hidden");
+      if (inputTelefono) inputTelefono.focus();
+      alert("Por favor ingresa un número de celular peruano válido de 9 dígitos que comience con 9.");
+      return;
+    } else {
+      if (errorTelefono) errorTelefono.classList.add("hidden");
+    }
+
+    if (!direccion || !distrito) {
+      alert("Por favor completa la dirección y distrito para coordinar tu entrega.");
       return;
     }
 
