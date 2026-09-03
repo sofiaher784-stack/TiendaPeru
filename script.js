@@ -23,7 +23,7 @@ const CONFIG = {
 
 // Estado reactivo de la aplicación
 const state = {
-  selectedCombo: 2, // Por defecto el Combo Pareja (Recomendado)
+  selectedCombo: 1, // Por defecto 1 Unidad (S/. 69.90)
   sizes: ["M", "M", "M"] // Tallas por unidad
 };
 

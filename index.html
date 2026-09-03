@@ -773,8 +773,8 @@
       <!-- Tarjetas de Combos (1x, 2x, 3x) -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         
-        <!-- Combo 1: 1 Unidad -->
-        <div class="combo-card p-6 flex flex-col justify-between" data-combo="1">
+        <!-- Combo 1: 1 Unidad (Predeterminado) -->
+        <div class="combo-card active p-6 flex flex-col justify-between" data-combo="1">
           <div class="space-y-4">
             <div class="flex justify-between items-start">
               <div>
@@ -796,13 +796,13 @@
               <li>✓ Empaque nuevo y sellado</li>
             </ul>
           </div>
-          <button type="button" class="btn-combo-select w-full mt-6 py-2.5 rounded-xl text-xs font-bold">
-            Seleccionar 1 Unidad
+          <button type="button" class="btn-combo-select w-full mt-6 py-2.5 rounded-xl text-xs font-extrabold">
+            ¡SELECCIONADO! ✓
           </button>
         </div>
 
         <!-- Combo 2: 2 Unidades (MÁS VENDIDO / PAREJA - S/. 109.90) -->
-        <div class="combo-card active p-6 flex flex-col justify-between relative" data-combo="2">
+        <div class="combo-card p-6 flex flex-col justify-between relative" data-combo="2">
           <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[11px] font-extrabold uppercase px-4 py-1 rounded-full shadow-md tracking-wider">
             🔥 MÁS VENDIDO - AHORRAS 21%
           </div>
@@ -828,8 +828,8 @@
               <li>✓ Pago contraentrega al recibir</li>
             </ul>
           </div>
-          <button type="button" class="btn-combo-select w-full mt-6 py-2.5 rounded-xl text-xs font-extrabold">
-            ¡SELECCIONADO! ✓
+          <button type="button" class="btn-combo-select w-full mt-6 py-2.5 rounded-xl text-xs font-bold">
+            Seleccionar 2 Unidades
           </button>
         </div>
 
@@ -893,12 +893,12 @@
           <div class="bg-gradient-to-r from-sky-900 to-slate-900 text-white p-4 sm:p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-md">
             <div>
               <span class="text-[11px] text-sky-300 font-bold uppercase tracking-wider block">Paquete Seleccionado:</span>
-              <h4 id="order-summary-title" class="font-extrabold text-base sm:text-lg text-white">2 Unidades (Combo Pareja / MÁS VENDIDO)</h4>
-              <span id="order-summary-savings" class="text-xs text-orange-400 font-semibold">Ahorras 21% (S/. 54.95 c/u)</span>
+              <h4 id="order-summary-title" class="font-extrabold text-base sm:text-lg text-white">1 Unidad (Individual)</h4>
+              <span id="order-summary-savings" class="text-xs text-emerald-400 font-semibold">Envío Gratis en Huánuco</span>
             </div>
             <div class="text-right">
               <span class="text-[11px] text-slate-300 block">Total a Pagar en Mano:</span>
-              <div id="order-summary-price" class="text-2xl sm:text-3xl font-extrabold text-orange-400">S/. 109.90</div>
+              <div id="order-summary-price" class="text-2xl sm:text-3xl font-extrabold text-orange-400">S/. 69.90</div>
               <span class="text-[10px] text-emerald-400 font-bold">🚚 ENVÍO GRATIS</span>
             </div>
           </div>
@@ -909,8 +909,8 @@
               1. Confirmar Cantidad de Correctores:
             </label>
             <select id="combo-select" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm">
-              <option value="1">1 Unidad — S/. 69.90 (Envío Gratis)</option>
-              <option value="2" selected>2 Unidades (Combo Pareja) — S/. 109.90 (Ahorro del 21%)</option>
+              <option value="1" selected>1 Unidad — S/. 69.90 (Envío Gratis)</option>
+              <option value="2">2 Unidades (Combo Pareja) — S/. 109.90 (Ahorro del 21%)</option>
               <option value="3">3 Unidades (Combo Familiar) — S/. 149.90 (Máximo Ahorro 29%)</option>
             </select>
           </div>
@@ -1073,10 +1073,10 @@
       <div class="flex items-center">
         <div>
           <span class="text-[10px] uppercase font-bold text-slate-400 block leading-none mb-1">Total a Pagar:</span>
-          <span id="sticky-price-display" class="text-xl sm:text-2xl font-black text-orange-400 tracking-tight leading-none block">S/. 109.90</span>
+          <span id="sticky-price-display" class="text-xl sm:text-2xl font-black text-orange-400 tracking-tight leading-none block">S/. 69.90</span>
           <div class="mt-1">
-            <span id="sticky-savings-badge" class="inline-block bg-orange-500/20 border border-orange-500/40 text-orange-300 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-md">
-              Ahorras 21% (S/. 54.95 c/u)
+            <span id="sticky-savings-badge" class="inline-block bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-md">
+              Envío Gratis en Huánuco
             </span>
           </div>
         </div>
