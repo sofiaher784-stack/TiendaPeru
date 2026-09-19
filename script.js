@@ -28,6 +28,178 @@ const state = {
 };
 
 // ==========================================
+// 1.1 MOTOR DE TRACKING META (PIXEL + CAPI DEDUPLICADO)
+// ==========================================
+function jsSha256(ascii) {
+  function rightRotate(value, amount) {
+    return (value >>> amount) | (value << (32 - amount));
+  }
+  var mathPow = Math.pow;
+  var maxWord = mathPow(2, 32);
+  var lengthProperty = 'length';
+  var i, j;
+  var result = '';
+  var words = [];
+  var asciiBitLength = ascii[lengthProperty] * 8;
+  var hash = jsSha256.h = jsSha256.h || [];
+  var k = jsSha256.k = jsSha256.k || [];
+  var primeCounter = k[lengthProperty];
+  var isComposite = {};
+  for (var candidate = 2; primeCounter < 64; candidate++) {
+    if (!isComposite[candidate]) {
+      for (i = 0; i < 300; i += candidate) {
+        isComposite[i] = candidate;
+      }
+      hash[primeCounter] = (mathPow(candidate, 0.5) * maxWord) | 0;
+      k[primeCounter++] = (mathPow(candidate, 1 / 3) * maxWord) | 0;
+    }
+  }
+  ascii += '\x80';
+  while ((ascii[lengthProperty] % 64) - 56) ascii += '\x00';
+  for (i = 0; i < ascii[lengthProperty]; i++) {
+    j = ascii.charCodeAt(i);
+    if (j >> 8) return;
+    words[i >> 2] |= j << ((3 - (i % 4)) * 8);
+  }
+  words[words[lengthProperty]] = (asciiBitLength / maxWord) | 0;
+  words[words[lengthProperty]] = asciiBitLength;
+  for (j = 0; j < words[lengthProperty]; ) {
+    var w = words.slice(j, (j += 16));
+    var oldHash = hash;
+    hash = hash.slice(0, 8);
+    for (i = 0; i < 64; i++) {
+      var i2 = i + j;
+      var w15 = w[i - 15], w2 = w[i - 2];
+      var a = hash[0], e = hash[4];
+      var temp1 =
+        hash[7] +
+        (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25)) +
+        ((e & hash[5]) ^ (~e & hash[6])) +
+        k[i] +
+        (w[i] =
+          i < 16
+            ? w[i]
+            : (w[i - 16] +
+                (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3)) +
+                w[i - 7] +
+                (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10))) |
+              0);
+      var temp2 =
+        (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22)) +
+        ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
+      hash = [(temp1 + temp2) | 0].concat(hash);
+      hash[4] = (hash[4] + temp1) | 0;
+    }
+    for (i = 0; i < 8; i++) {
+      hash[i] = (hash[i] + oldHash[i]) | 0;
+    }
+  }
+  for (i = 0; i < 8; i++) {
+    for (i2 = 3; i2 >= 0; i2--) {
+      var b = (hash[i] >> (i2 * 8)) & 255;
+      result += (b < 16 ? '0' : '') + b.toString(16);
+    }
+  }
+  return result;
+}
+
+async function sha256(str) {
+  if (!str) return '';
+  const clean = String(str).trim().toLowerCase();
+  if (window.crypto && window.crypto.subtle && window.crypto.subtle.digest) {
+    try {
+      const msgUint8 = new TextEncoder().encode(clean);
+      const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgUint8);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    } catch (e) {
+      // Fallback
+    }
+  }
+  return jsSha256(clean);
+}
+
+function getCookie(name) {
+  try {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  } catch (e) {}
+  return null;
+}
+
+function generateEventId(prefix = 'posturafit') {
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+}
+
+async function trackEvent(eventName, customData = {}, rawUserData = {}) {
+  const eventId = generateEventId(eventName.toLowerCase());
+
+  // 1. Envío al Pixel de Meta (Navegador) con deduplicación eventID
+  if (typeof fbq === 'function') {
+    fbq('track', eventName, customData, { eventID: eventId });
+  }
+
+  // 2. Preparación de datos de usuario con hasheo SHA-256 (Advanced Matching)
+  const userData = {};
+
+  const fbp = getCookie('_fbp');
+  const fbc = getCookie('_fbc');
+  if (fbp) userData.fbp = fbp;
+  if (fbc) userData.fbc = fbc;
+
+  if (rawUserData.phone) {
+    let cleanPhone = String(rawUserData.phone).replace(/\D/g, '');
+    if (!cleanPhone.startsWith('51')) {
+      cleanPhone = '51' + cleanPhone;
+    }
+    userData.ph = [await sha256(cleanPhone)];
+  }
+
+  if (rawUserData.name) {
+    const cleanName = String(rawUserData.name)
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase().trim();
+    userData.fn = [await sha256(cleanName)];
+  }
+
+  if (rawUserData.city) {
+    const cleanCity = String(rawUserData.city)
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase().trim();
+    userData.ct = [await sha256(cleanCity)];
+  }
+
+  userData.country = [await sha256('pe')];
+
+  // 3. Envío al Servidor (Meta Conversions API) con el mismo event_id
+  try {
+    fetch('/api/capi', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event_name: eventName,
+        event_id: eventId,
+        event_source_url: window.location.href,
+        user_data: userData,
+        custom_data: customData
+      }),
+      keepalive: true
+    }).then(res => res.json())
+      .then(resData => {
+        console.log(`[Tracking CAPI] Evento ${eventName} enviado:`, resData);
+      })
+      .catch(err => {
+        console.warn(`[Tracking CAPI] Error enviando ${eventName}:`, err);
+      });
+  } catch (err) {
+    console.warn('[Tracking CAPI]:', err);
+  }
+
+  return eventId;
+}
+
+// ==========================================
 // 2. INICIALIZACIÓN AL CARGAR EL DOM
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
@@ -38,6 +210,19 @@ document.addEventListener("DOMContentLoaded", () => {
   initStickyBar();
   initRecentPurchaseToast();
   initSmoothScroll();
+
+  // Tracking inicial de PageView y ViewContent con deduplicación
+  trackEvent("PageView", {
+    page_title: document.title,
+    page_path: window.location.pathname
+  });
+
+  trackEvent("ViewContent", {
+    content_name: "Corrector de Postura Ergonómico PosturaFit™",
+    content_category: "Salud y Bienestar",
+    currency: "PEN",
+    value: CONFIG.PRICES[state.selectedCombo].price
+  });
 });
 
 // ==========================================
@@ -131,14 +316,47 @@ function initComboSelector() {
   comboCards.forEach(card => {
     card.addEventListener("click", () => {
       selectCombo(card.dataset.combo);
+      const combo = CONFIG.PRICES[state.selectedCombo];
+      if (combo) {
+        trackEvent("InitiateCheckout", {
+          content_name: combo.name,
+          currency: "PEN",
+          value: combo.price,
+          num_items: combo.units
+        });
+      }
     });
   });
 
   if (comboSelectInput) {
     comboSelectInput.addEventListener("change", (e) => {
       selectCombo(e.target.value);
+      const combo = CONFIG.PRICES[state.selectedCombo];
+      if (combo) {
+        trackEvent("InitiateCheckout", {
+          content_name: combo.name,
+          currency: "PEN",
+          value: combo.price,
+          num_items: combo.units
+        });
+      }
     });
   }
+
+  // Evento InitiateCheckout al hacer clic en cualquier botón de llamado a la acción
+  document.querySelectorAll('a[href="#formulario-pedido"]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      const combo = CONFIG.PRICES[state.selectedCombo];
+      if (combo) {
+        trackEvent("InitiateCheckout", {
+          content_name: combo.name,
+          currency: "PEN",
+          value: combo.price,
+          num_items: combo.units
+        });
+      }
+    });
+  });
 
   // Selección inicial
   selectCombo(state.selectedCombo);
@@ -378,6 +596,26 @@ Por favor, confirmen mi despacho para recibir y pagar en mi puerta. ¡Muchas gra
 
     const urlWhatsApp = `https://api.whatsapp.com/send?phone=${CONFIG.WHATSAPP_NUMBER}&text=${encodeURIComponent(mensajeWhatsApp)}`;
 
+    // DISPARO DE CONVERSIONES META (Purchase y Lead con deduplicación y Advanced Matching)
+    const trackingCustomData = {
+      content_name: `Corrector PosturaFit™ - ${comboData.name}`,
+      content_ids: ["posturafit"],
+      content_type: "product",
+      currency: "PEN",
+      value: comboData.price,
+      num_items: comboData.units
+    };
+
+    const trackingUserData = {
+      name: nombre,
+      phone: telefono,
+      city: distrito || "Huanuco"
+    };
+
+    // Disparar Purchase (Compra con pago contraentrega) y Lead
+    trackEvent("Purchase", trackingCustomData, trackingUserData);
+    trackEvent("Lead", trackingCustomData, trackingUserData);
+
     const submitBtn = document.getElementById("submit-order-btn");
     if (submitBtn) {
       submitBtn.innerHTML = `<span>Redirigiendo a WhatsApp...</span> ⏳`;
@@ -389,7 +627,7 @@ Por favor, confirmen mi despacho para recibir y pagar en mi puerta. ¡Muchas gra
       if (submitBtn) {
         submitBtn.innerHTML = `<span>¡PEDIDO ENVIADO CON ÉXITO!</span> ✅`;
       }
-    }, 400);
+    }, 600);
   });
 }
 
