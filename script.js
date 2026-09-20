@@ -172,18 +172,30 @@ async function trackEvent(eventName, customData = {}, rawUserData = {}) {
 
   userData.country = [await sha256('pe')];
 
+  // Detectar si se está probando con código de eventos de Meta en la URL (?test_event_code=...)
+  let testCode = null;
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    testCode = urlParams.get('test_event_code');
+  } catch (e) {}
+
   // 3. Envío al Servidor (Meta Conversions API) con el mismo event_id
   try {
+    const capiBody = {
+      event_name: eventName,
+      event_id: eventId,
+      event_source_url: window.location.href,
+      user_data: userData,
+      custom_data: customData
+    };
+    if (testCode) {
+      capiBody.test_event_code = testCode;
+    }
+
     fetch('/api/capi', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        event_name: eventName,
-        event_id: eventId,
-        event_source_url: window.location.href,
-        user_data: userData,
-        custom_data: customData
-      }),
+      body: JSON.stringify(capiBody),
       keepalive: true
     }).then(res => res.json())
       .then(resData => {

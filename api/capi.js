@@ -74,6 +74,10 @@ module.exports = async function handler(req, res) {
       ]
     };
 
+    if (body.test_event_code) {
+      metaPayload.test_event_code = body.test_event_code;
+    }
+
     const payloadString = JSON.stringify(metaPayload);
 
     const metaResponse = await new Promise((resolve, reject) => {
